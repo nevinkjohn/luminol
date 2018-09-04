@@ -10,6 +10,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 """
 import numpy
+import math
 
 from luminol import utils
 from luminol.algorithms.anomaly_detector_algorithms import AnomalyDetectorAlgorithm
@@ -76,6 +77,8 @@ class ExpAvgDetector(AnomalyDetectorAlgorithm):
         values = self.time_series.values
         ema = utils.compute_ema(self.smoothing_factor, values)
         stdev = numpy.std(values)
+        if math.isclose(0, stdev, abs_tol=1e-14):
+            stdev = 0
         for i, (timestamp, value) in enumerate(self.time_series_items):
             anom_score = abs((value - ema[i]) / stdev) if stdev else value - ema[i]
             anom_scores[timestamp] = anom_score
